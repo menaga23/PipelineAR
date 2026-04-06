@@ -4,38 +4,70 @@ using TMPro;
 
 public class UIController : MonoBehaviour
 {
+    [Header("Info Panel")]
+    public GameObject infoPanel;
+    public TextMeshProUGUI infoText;
+
     [Header("References")]
-    public PipelineSpawner spawner;
     public ARTouchPlacer touchPlacer;
-
-    [Header("UI Buttons")]
-    public Button waterButton;
-    public Button ElectricButton;
-    public Button sewerButton;
-    public Button resetButton;
-
-    [Header("UI Text")]
-    public TextMeshProUGUI instructionText;
+    public PipelineSpawner spawner;
 
     void Start()
     {
-        waterButton.onClick.AddListener(() => SelectPipe("water"));
-        ElectricButton.onClick.AddListener(() => SelectPipe("electric"));
-        sewerButton.onClick.AddListener(() => SelectPipe("sewer"));
-        resetButton.onClick.AddListener(ResetPipelines);
-
-        instructionText.text = "Point camera at ground, then tap to place pipelines";
+        if (infoPanel != null) infoPanel.SetActive(false);
     }
 
-    void SelectPipe(string type)
+    public void ShowWaterInfo()
     {
-        touchPlacer.ResetPlacement();
-        instructionText.text = "Selected: " + type.ToUpper() + " - Tap ground to place!";
+        // ✅ Always closes first then reopens
+        infoPanel.SetActive(false);
+        infoPanel.SetActive(true);
+        infoText.text =
+            "<b>💧 WATER PIPELINE</b>\n\n" +
+            "Type: Water Supply\n" +
+            "Depth: 1.5 meters\n" +
+            "Material: PVC\n" +
+            "Diameter: 200mm\n" +
+            "Installed: 2018\n" +
+            "Owner: City Water Board";
     }
 
-    void ResetPipelines()
+    public void ShowElectricInfo()
     {
-        touchPlacer.ResetPlacement();
-        instructionText.text = "Cleared! Tap ground to place pipelines.";
+        infoPanel.SetActive(false);
+        infoPanel.SetActive(true);
+        infoText.text =
+            "<b>⚡ ELECTRIC PIPELINE</b>\n\n" +
+            "Type: Electric Conduit\n" +
+            "Depth: 2.0 meters\n" +
+            "Material: Steel\n" +
+            "Diameter: 150mm\n" +
+            "Installed: 2020\n" +
+            "Owner: City Electric Board";
+    }
+
+    public void ShowSewerInfo()
+    {
+        infoPanel.SetActive(false);
+        infoPanel.SetActive(true);
+        infoText.text =
+            "<b>🟤 SEWER PIPELINE</b>\n\n" +
+            "Type: Sewage System\n" +
+            "Depth: 3.0 meters\n" +
+            "Material: Concrete\n" +
+            "Diameter: 300mm\n" +
+            "Installed: 2015\n" +
+            "Owner: City Municipal Corp";
+    }
+
+    public void HideInfo()
+    {
+        if (infoPanel != null) infoPanel.SetActive(false);
+    }
+
+    public void OnResetButton()
+    {
+        touchPlacer.ResetSpawn();
+        HideInfo();
     }
 }
