@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 823483932, guid: 5e2b4f19fefec46a08626f272dff56e8, type: 3}
   m_Name: MultiSetConfig
   m_EditorClassIdentifier: MultiSetSDK.dll::MultiSet.MultiSetConfig
-  clientId: 8ffc42d2-91a3-4ca0-86c4-01ed34777ea8
-  clientSecret: 11c8a5672c74def7d5d5b8f316433ffb7789ce930937387a68
+  clientId: 7b4a5d9c-36e6-4ac8-a044-ca1d74e56a5b
+  clientSecret: bac51ee0004aaec72a24a2d11fdc100559093339a7305e0252bdbbf9c8f993a0

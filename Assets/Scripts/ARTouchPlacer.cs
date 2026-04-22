@@ -1,63 +1,125 @@
 using UnityEngine;
-using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
 using TMPro;
+using MultiSet;
 
 public class ARTouchPlacer : MonoBehaviour
 {
-    public ARRaycastManager raycastManager;
-    public ARPlaneManager planeManager;
-    public PipelineSpawner pipelineSpawner;
-    public TextMeshProUGUI instructionText;
+    [Header("MultiSet SDK")]
+    public MapLocalizationManager mapLocalizationManager;
+    public GameObject mapSpace;
 
-    private List<ARRaycastHit> hits = new List<ARRaycastHit>();
-    private bool hasSpawned = false;
-    private Vector3 spawnedPosition;
+    [Header("UI")]
+    public GameObject localizingSpinner;
+    public TextMeshProUGUI vpsStatusText;
 
-    void Update()
+    private bool isLocalized = false;
+
+    void Start()
     {
-        // Show instruction until plane detected
-        if (!hasSpawned)
+        // Hide pipes until localized
+        if (mapSpace != null)
+            mapSpace.SetActive(false);
+
+        if (localizingSpinner != null)
+            localizingSpinner.SetActive(true);
+
+        UpdateStatus("Scanning environment...\nPoint camera at the location");
+
+        // Find MapLocalizationManager if not assigned
+        if (mapLocalizationManager == null)
+            mapLocalizationManager = FindObjectOfType<MapLocalizationManager>();
+
+        if (mapLocalizationManager != null)
         {
-            if (instructionText != null)
-                instructionText.text = "Point camera at floor and tap to place pipelines!";
+            // Subscribe to MultiSet events
+            mapLocalizationManager.LocalizationSuccess.AddListener(OnLocalizationSuccess);
+            mapLocalizationManager.LocalizationFailure.AddListener(OnLocalizationFailure);
+
+            // Start localization
+            mapLocalizationManager.LocalizeFrame();
+            Debug.Log("[ARTouchPlacer] VPS localization started...");
         }
-
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        else
         {
-            Touch touch = Input.GetTouch(0);
-
-            // Only spawn on real detected AR plane
-            if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
-            {
-                Pose hitPose = hits[0].pose;
-                spawnedPosition = hitPose.position;
-                pipelineSpawner.SpawnAllAtPosition(spawnedPosition);
-                hasSpawned = true;
-
-                if (instructionText != null)
-                    instructionText.gameObject.SetActive(false);
-
-                Debug.Log("SPAWNED ON REAL FLOOR AT: " + spawnedPosition);
-            }
-            else
-            {
-                if (instructionText != null)
-                    instructionText.text = "No floor detected! Move camera slowly on floor!";
-                Debug.Log("No AR plane detected - move camera on floor!");
-            }
+            Debug.LogError("[ARTouchPlacer] MapLocalizationManager not found!");
+            UpdateStatus("Error: MultiSet SDK not found");
         }
     }
 
+    // Called by MultiSet when environment is recognized
+    void OnLocalizationSuccess()
+    {
+        isLocalized = true;
+        Debug.Log("[ARTouchPlacer] Localized! Showing pipes.");
+
+        // MultiSet has already aligned Map Space to real world
+        // Just make it visible
+        if (mapSpace != null)
+            mapSpace.SetActive(true);
+
+        if (localizingSpinner != null)
+            localizingSpinner.SetActive(false);
+
+        UpdateStatus("Location found! Pipes are now visible.");
+
+        // Hide status after 3 seconds
+        Invoke(nameof(HideStatus), 3f);
+    }
+
+    // Called by MultiSet when localization fails
+    void OnLocalizationFailure()
+    {
+        Debug.LogWarning("[ARTouchPlacer] Localization failed. Retrying...");
+        UpdateStatus("Scanning...\nMove camera slowly around the area");
+
+        // Retry after 2 seconds
+        Invoke(nameof(RetryLocalization), 2f);
+    }
+
+    void RetryLocalization()
+    {
+        if (!isLocalized && mapLocalizationManager != null)
+            mapLocalizationManager.LocalizeFrame();
+    }
+
+    void UpdateStatus(string message)
+    {
+        if (vpsStatusText != null)
+        {
+            vpsStatusText.gameObject.SetActive(true);
+            vpsStatusText.text = message;
+        }
+    }
+
+    void HideStatus()
+    {
+        if (vpsStatusText != null)
+            vpsStatusText.gameObject.SetActive(false);
+    }
+
+    // Called by Reset button in UI
     public void ResetSpawn()
     {
-        hasSpawned = false;
-        pipelineSpawner.ClearAllPipelines();
-        if (instructionText != null)
+        isLocalized = false;
+
+        if (mapSpace != null)
+            mapSpace.SetActive(false);
+
+        if (localizingSpinner != null)
+            localizingSpinner.SetActive(true);
+
+        UpdateStatus("Scanning environment...\nPoint camera at the location");
+
+        if (mapLocalizationManager != null)
+            mapLocalizationManager.LocalizeFrame();
+    }
+
+    void OnDestroy()
+    {
+        if (mapLocalizationManager != null)
         {
-            instructionText.gameObject.SetActive(true);
-            instructionText.text = "Point camera at floor and tap to place pipelines!";
+            mapLocalizationManager.LocalizationSuccess.RemoveListener(OnLocalizationSuccess);
+            mapLocalizationManager.LocalizationFailure.RemoveListener(OnLocalizationFailure);
         }
     }
 }

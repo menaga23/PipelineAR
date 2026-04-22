@@ -1,6 +1,4 @@
 ﻿<Solution>
-  <Project Path="MultiSet-SDK.Core.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="MultiSet-SDK.Editor.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
 </Solution>

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class UIController : MonoBehaviour
@@ -19,11 +18,11 @@ public class UIController : MonoBehaviour
 
     public void ShowWaterInfo()
     {
-        // ✅ Always closes first then reopens
+        if (infoPanel == null || infoText == null) return;
         infoPanel.SetActive(false);
         infoPanel.SetActive(true);
         infoText.text =
-            "<b>💧 WATER PIPELINE</b>\n\n" +
+            "<b>WATER PIPELINE</b>\n\n" +
             "Type: Water Supply\n" +
             "Depth: 1.5 meters\n" +
             "Material: PVC\n" +
@@ -34,10 +33,11 @@ public class UIController : MonoBehaviour
 
     public void ShowElectricInfo()
     {
+        if (infoPanel == null || infoText == null) return;
         infoPanel.SetActive(false);
         infoPanel.SetActive(true);
         infoText.text =
-            "<b>⚡ ELECTRIC PIPELINE</b>\n\n" +
+            "<b>ELECTRIC PIPELINE</b>\n\n" +
             "Type: Electric Conduit\n" +
             "Depth: 2.0 meters\n" +
             "Material: Steel\n" +
@@ -48,10 +48,11 @@ public class UIController : MonoBehaviour
 
     public void ShowSewerInfo()
     {
+        if (infoPanel == null || infoText == null) return;
         infoPanel.SetActive(false);
         infoPanel.SetActive(true);
         infoText.text =
-            "<b>🟤 SEWER PIPELINE</b>\n\n" +
+            "<b>SEWER PIPELINE</b>\n\n" +
             "Type: Sewage System\n" +
             "Depth: 3.0 meters\n" +
             "Material: Concrete\n" +
@@ -67,7 +68,8 @@ public class UIController : MonoBehaviour
 
     public void OnResetButton()
     {
-        touchPlacer.ResetSpawn();
+        if (touchPlacer != null) touchPlacer.ResetSpawn();
+        if (spawner != null) spawner.ClearAllPipelines();
         HideInfo();
     }
 }

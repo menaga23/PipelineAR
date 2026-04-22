@@ -19,8 +19,8 @@ public class PipelineInfo : MonoBehaviour
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            Touch touch    = Input.GetTouch(0);
-            Ray ray        = Camera.main.ScreenPointToRay(touch.position);
+            Touch touch = Input.GetTouch(0);
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
             RaycastHit[] hits = Physics.RaycastAll(ray, 20f);
 
             Debug.Log("TAP! Hits found: " + hits.Length);
@@ -29,10 +29,10 @@ public class PipelineInfo : MonoBehaviour
 
             foreach (RaycastHit hit in hits)
             {
-                string name = hit.collider.gameObject.name.ToLower();
-                Debug.Log("Hit: " + name);
+                string hitName = hit.collider.gameObject.name.ToLower();
+                Debug.Log("Hit: " + hitName);
 
-                if (name.Contains("water"))
+                if (hitName.Contains("water"))
                 {
                     ShowInfo("WATER PIPELINE",
                         "Type: Water Supply\n" +
@@ -45,7 +45,7 @@ public class PipelineInfo : MonoBehaviour
                     BlockTouchPlacer();
                     break;
                 }
-                else if (name.Contains("electric"))
+                else if (hitName.Contains("electric"))
                 {
                     ShowInfo("ELECTRIC PIPELINE",
                         "Type: Electric Conduit\n" +
@@ -58,7 +58,7 @@ public class PipelineInfo : MonoBehaviour
                     BlockTouchPlacer();
                     break;
                 }
-                else if (name.Contains("sewer"))
+                else if (hitName.Contains("sewer"))
                 {
                     ShowInfo("SEWER PIPELINE",
                         "Type: Sewage System\n" +
@@ -83,8 +83,8 @@ public class PipelineInfo : MonoBehaviour
 
     void ShowInfo(string title, string details)
     {
-        infoPanel.SetActive(true);
-        infoText.text = "<b>" + title + "</b>\n\n" + details;
+        if (infoPanel != null) infoPanel.SetActive(true);
+        if (infoText != null) infoText.text = "<b>" + title + "</b>\n\n" + details;
     }
 
     public void HideInfo()
